@@ -78,3 +78,17 @@ The shared stylesheet uses the supplied palette: forest `#1F2F2A`, terracotta `#
 - Explore, location, nature, culture, and scenic-road PNGs: matching navigation, route badges, filters, and planner interests
 
 `tabirologos.png` is retained as the brand reference sheet.
+
+## Cache versions for deployment
+
+All site-owned CSS, JavaScript imports, PNG/SVG images, favicons, and internal page links carry a numeric `v` query parameter. Destination photo URLs also carry it. Google Fonts remains provider-managed.
+
+Before each future deployment, run:
+
+```sh
+npm run version:assets
+```
+
+This increments the last numeric component in `asset-version.json` and updates all release URLs. To choose a specific number instead, run `npm run version:assets -- 20260914.3`. Commit and deploy the changed HTML files and `assets/` together. The command prints the current first-visit URL.
+
+For this release, open `https://tabiro.digitalthakali.com/?v=20260914.2` after deploying. This also gives the initial HTML request a fresh URL; asset versions alone cannot replace an already cached HTML response. If that URL still serves the previous site, verify the server deployment and any CDN cache, including whether its cache key ignores query strings. Versioning changes browser requests; it does not publish files to the server.

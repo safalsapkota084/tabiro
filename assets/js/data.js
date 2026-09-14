@@ -1,4 +1,4 @@
-import { translate, resolveLocale } from './i18n.js';
+import { translate, resolveLocale } from './i18n.js?v=20260914.2';
 const localized = (en, ja, fr) => ({ en, ja, fr });
 export const routes = [
   {
@@ -52,10 +52,10 @@ export const routes = [
   },
 ];
 export const images = {
-  japan: 'https://images.unsplash.com/photo-1493976040374-85c8e12f0c0e?auto=format&fit=crop&w=1000&q=85',
-  mountains: 'https://images.unsplash.com/photo-1464822759023-fed622ff2c3b?auto=format&fit=crop&w=1000&q=85',
-  coast: 'https://images.unsplash.com/photo-1518837695005-2083093ee35b?auto=format&fit=crop&w=1000&q=85',
-  village: 'https://images.unsplash.com/photo-1470770841072-f978cf4d019e?auto=format&fit=crop&w=1000&q=85',
+  japan: 'https://images.unsplash.com/photo-1493976040374-85c8e12f0c0e?auto=format&fit=crop&w=1000&q=85&v=20260914.2',
+  mountains: 'https://images.unsplash.com/photo-1464822759023-fed622ff2c3b?auto=format&fit=crop&w=1000&q=85&v=20260914.2',
+  coast: 'https://images.unsplash.com/photo-1518837695005-2083093ee35b?auto=format&fit=crop&w=1000&q=85&v=20260914.2',
+  village: 'https://images.unsplash.com/photo-1470770841072-f978cf4d019e?auto=format&fit=crop&w=1000&q=85&v=20260914.2',
 };
 export const getRoute = id => routes.find(route => route.id === id);
 export function createPlan(input) {
