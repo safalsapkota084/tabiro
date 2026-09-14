@@ -54,7 +54,7 @@ h3 { font-size: 17px; line-height: 1.45; font-weight: 600; letter-spacing: -.3px
 .brand { display: inline-flex; align-items: center; line-height: 1; }
 .brand-lockup { width: 174px; max-width: 100%; height: auto; object-fit: contain; }
 .brand-wordmark { width: 132px; height: auto; object-fit: contain; }
-.brand-icon { object-fit: contain; }
+.icon.brand-icon { object-fit: contain; }
 .mobile-brand { display: none; }
 .footer-brand { flex-shrink: 0; }
 .footer-brand .brand-wordmark { width: 90px; }
@@ -133,8 +133,8 @@ h3 { font-size: 17px; line-height: 1.45; font-weight: 600; letter-spacing: -.3px
 .route-card { border: 1px solid var(--line); border-radius: 13px; overflow: hidden; background: #fff; box-shadow: 0 4px 12px color-mix(in srgb, var(--forest) 6%, transparent); }
 .card-cover { height: 185px; position: relative; overflow: hidden; }
 .card-cover > a { display: block; height: 100%; }
-.card-cover img { width: 100%; height: 100%; object-fit: cover; transition: transform .4s; }
-.route-card:hover .card-cover img { transform: scale(1.045); }
+.card-cover > a > img { width: 100%; height: 100%; object-fit: cover; transition: transform .4s; }
+.route-card:hover .card-cover > a > img { transform: scale(1.045); }
 .image-japan { background: linear-gradient(145deg, var(--sand), var(--forest)); }
 .image-mountains { background: linear-gradient(145deg, var(--sand), var(--forest)); }
 .image-coast { background: linear-gradient(145deg, var(--mint), var(--mint)); }
@@ -209,7 +209,7 @@ footer { margin: 0 42px; padding: 20px 0; border-top: 1px solid var(--line); col
 .timeline h3 { font-size: 15px; margin-bottom: 7px; }
 .timeline p:not(.day-label) { color: var(--muted); font-size: 12px; line-height: 1.85; margin-bottom: 0; }
 .day-label { color: var(--accent); font-size: 9px; letter-spacing: .6px; margin-bottom: 5px; font-weight: 600; }
-.demo-notice { display: flex; gap: 10px; align-items: center; background: var(--peach); border: 1px solid var(--line-strong); color: var(--accent); border-radius: 9px; padding: 12px 16px; font-size: 11px; margin-bottom: 24px; }
+.demo-notice { display: flex; gap: 10px; align-items: center; background: var(--accent-soft); border: 1px solid var(--line-strong); color: var(--accent); border-radius: 9px; padding: 12px 16px; font-size: 11px; margin-bottom: 24px; }
 .demo-notice .icon { width: 17px; height: 17px; }
 .planner-layout { display: grid; grid-template-columns: minmax(300px, .85fr) minmax(0, 1.3fr); gap: 23px; align-items: start; }
 .planner-form-panel { position: sticky; top: 25px; }
@@ -279,7 +279,6 @@ legend { font-size: 11px; font-weight: 600; margin-bottom: 11px; padding: 0; }
 .auth-story { margin: auto 0; padding-top: 50px; }
 .auth-story h1 { font-size: clamp(30px, 3.7vw, 53px); font-weight: 500; letter-spacing: -2px; }
 .auth-story > p:not(.eyebrow) { max-width: 370px; font-size: 13px; color: var(--muted); line-height: 1.9; }
-.auth-story > img { max-height: 365px; margin: 5px auto 0; width: 100%; }
 .auth-tagline { font: italic 13px Georgia,serif; color: var(--muted); margin-top: 20px; }
 .auth-main { display: flex; flex-direction: column; background: var(--surface); }
 .auth-top { display: flex; justify-content: flex-end; padding: 28px 40px; }
@@ -291,7 +290,7 @@ legend { font-size: 11px; font-weight: 600; margin-bottom: 11px; padding: 0; }
 .input-wrap { position: relative; }
 .input-wrap:has(.password-toggle) input { padding-right: 48px; }
 .password-toggle { width: 42px; height: 42px; position: absolute; top: 2px; right: 2px; background: transparent; display: grid; place-items: center; color: var(--muted); border-radius: 6px; }
-.password-toggle[aria-pressed='true'] { color: var(--accent); background: var(--peach); }
+.password-toggle[aria-pressed='true'] { color: var(--accent); background: var(--accent-soft); }
 .password-toggle .icon { width: 18px; height: 18px; }
 .password-hint { color: var(--muted); font-size: 10px; margin: -4px 0 22px; }
 .auth-switch { font-size: 12px; color: var(--muted); text-align: center; margin: 22px 0; }
@@ -408,7 +407,6 @@ legend { font-size: 11px; font-weight: 600; margin-bottom: 11px; padding: 0; }
   .auth-layout { grid-template-columns: 43% 57%; }
   .auth-art { padding: 35px 25px; }
   .auth-story h1 { font-size: 34px; }
-  .auth-story > img { margin-top: 35px; }
 }
 @media (max-width: 760px) {
   .sidebar { display: none; position: absolute; width: 260px; top: 73px; bottom: auto; min-height: calc(100vh - 73px); box-shadow: 15px 20px 50px color-mix(in srgb, var(--forest) 16%, transparent); }

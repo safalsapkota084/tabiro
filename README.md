@@ -34,7 +34,7 @@ Upload these items together into the site's public document root, preserving dir
 
 There is no frontend build step, production npm dependency, API key, or server-side routing requirement. The server should serve `.js` files with a JavaScript MIME type. A normal Apache, Nginx, or static-site configuration can serve these files directly. Keep `node_modules`, tests, package files, and documentation out of the public document root when possible; they are not required for deployment.
 
-Fonts use Google Fonts and photos use Unsplash. System-font and background-color fallbacks are provided; the main scenic illustration and favicon are local SVG files. Photos are destination inspiration rather than verified stop photography.
+Fonts use Google Fonts and photos use Unsplash. System-font and background-color fallbacks are provided; the scenic illustration is a local SVG; the supplied brand logos, category icons, and favicon are local PNGs. Photos are destination inspiration rather than verified stop photography.
 
 After deployment, check the pages directly (including `signup.html` and `planner.html?lang=ja`) and refresh the browser cache if an older CSS or JavaScript file is retained.
 
@@ -66,3 +66,15 @@ npm test
 Tests cover all eight pages in all three languages, valid navigation links, translated validation, filtering, language selection, planner preferences, saved-state corruption, cross-tab save preservation, keyboard menu focus, and escaping of profile names. jsdom is a development-only DOM test dependency; it does not perform visual layout verification.
 
 Before production use, connect a real authentication service and backend, add authorization and server-side validation, and replace template-based planning with the intended service.
+
+## Brand theme
+
+The shared stylesheet uses the supplied palette: forest `#1F2F2A`, terracotta `#A9574B`, sand `#A99886`, mint `#88E1D6`, and charcoal `#2E2E2E`. Surface and border colors are derived tints of these values. Original PNG artwork is used without recoloring or stretching.
+
+- `tabirologo&typographyvertically.png`: navigation and desktop account-page lockup
+- `tabiromain.png`: account-page brand artwork
+- `tabirotypography.png`: footer and mobile account-page wordmark
+- `tabiroicon.png`: favicon, Discover icon, and mobile header
+- Explore, location, nature, culture, and scenic-road PNGs: matching navigation, route badges, filters, and planner interests
+
+`tabirologos.png` is retained as the brand reference sheet.
