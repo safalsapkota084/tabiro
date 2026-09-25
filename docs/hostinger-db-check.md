@@ -69,6 +69,28 @@ Do not open this script in a browser: it rejects non-CLI requests. A browser URL
 
 The script is prepared locally. It has not been uploaded or executed on Hostinger. Local PHP execution is unavailable in this workspace.
 
+## Prepared production migration configuration
+
+The repository includes `phinx.production.php` for an explicitly approved migration. It never contains credentials and requires:
+
+- `TABIRO_ENV=production`
+- `TABIRO_CONFIG` pointing to a private `database.php` outside every public document root
+- `DB_NAME` exactly equal to `u844935905_tabiro`
+- CLI execution
+
+From the private Hostinger deployment directory, after confirming a restorable backup, an empty database, and a disposable MySQL 8 migration test, the command is:
+
+```sh
+TABIRO_ENV=production \
+TABIRO_CONFIG=/absolute/path/outside/public_html/database.php \
+vendor/bin/phinx migrate \
+  -c /absolute/path/to/phinx.production.php \
+  -e production \
+  --no-interaction
+```
+
+This command has not been run. The local `scripts/migrate.php` wrapper remains development/test-only and still rejects production.
+
 Official references:
 - [Hostinger SSH access](https://www.hostinger.com/support/1583245-how-to-connect-to-a-hosting-plan-via-ssh-in-hostinger/)
 - [Hostinger document root location](https://www.hostinger.com/support/5973000-how-to-open-the-website-s-root-directory-via-ssh-in-hostinger/)
