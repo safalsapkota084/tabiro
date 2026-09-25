@@ -6,9 +6,13 @@
   "scripts": {
     "test": "node --test tests/*.test.js",
     "start": "python3 -m http.server 8000 --bind 127.0.0.1",
-    "version:assets": "node scripts/version-assets.mjs"
+    "version:assets": "node scripts/version-assets.mjs",
+    "db:test": "node scripts/db-test.mjs",
+    "db:diag": "node scripts/db-test.mjs --diagnostic"
   },
   "devDependencies": {
-    "jsdom": "^29.1.1"
+    "dotenv": "^17.4.2",
+    "jsdom": "^29.1.1",
+    "mysql2": "^3.24.4"
   }
 }

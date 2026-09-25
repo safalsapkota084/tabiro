@@ -507,3 +507,14 @@ legend { font-size: 11px; font-weight: 600; margin-bottom: 11px; padding: 0; }
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after { transition: none !important; scroll-behavior: auto !important; }
 }
+
+/* Dated, account-backed itineraries share the existing palette and form styles. */
+.private-editor { margin-bottom: 28px; }
+.itinerary-controls { border: 0; padding: 0; margin: 0; min-width: 0; }
+.itinerary-controls > form { max-width: 760px; margin: 24px 0; }
+.itinerary-days { display: grid; gap: 20px; margin-top: 28px; }
+.itinerary-stops { padding-left: 24px; }
+.itinerary-stops > li { margin: 20px 0; padding: 16px; border: 1px solid var(--border, #deded4); border-radius: 16px; }
+.itinerary-day details { margin-top: 20px; }
+.itinerary-day summary { cursor: pointer; font-weight: 600; margin-bottom: 16px; }
+.itinerary-stops .button-row { flex-wrap: wrap; gap: 8px; }

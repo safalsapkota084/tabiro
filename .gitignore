@@ -8,3 +8,10 @@ node_modules/
 target/
 dist/
 build/
+# Private development/runtime and server configuration
+.local/
+vendor/
+**/database.php
+*.sql
+*.sql.gz
+.superpowers/

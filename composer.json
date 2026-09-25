@@ -1,0 +1,8 @@
+{
+  "name": "tabiro/application",
+  "description": "Tabiro private itinerary API",
+  "type": "project",
+  "require": {"php": "~8.4.0", "ext-pdo": "*", "ext-pdo_mysql": "*", "ext-mbstring": "*", "robmorgan/phinx": "^0.16"},
+  "autoload": {"psr-4": {"Tabiro\\": "backend/"}},
+  "config": {"sort-packages": true, "allow-plugins": false}
+}
