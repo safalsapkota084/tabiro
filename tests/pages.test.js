@@ -15,7 +15,9 @@ async function mount(file, locale = 'en', options = {}) {
   const console = new VirtualConsole();
   const errors = [];
   console.on('jsdomError', error => { if (!error.message.includes('navigation')) errors.push(error); });
-  const dom = new JSDOM(readFileSync(new URL(`../${file}.html`, import.meta.url), 'utf8'), { url: `https://tabiro.test/${file}.html?${params}`, virtualConsole: console });
+  const pageUrl = new URL(`https://tabiro.test/${file}.html?${params}`);
+  if (options.hash) pageUrl.hash = options.hash;
+  const dom = new JSDOM(readFileSync(new URL(`../${file}.html`, import.meta.url), 'utf8'), { url: pageUrl.href, virtualConsole: console });
   const local = options.local || memoryStorage();
   const session = options.session || memoryStorage();
   Object.defineProperty(dom.window, 'localStorage', { value: local });
@@ -120,6 +122,51 @@ test('signup validation is translated and never persists credentials', async () 
     assert.equal(app.local.getItem('tabiro-demo-profile'), null);
     app.dom.window.close();
   }
+});
+
+test('recovery fragments are cleared before explicit reset or verification submission', async () => {
+  const token = 'a'.repeat(64);
+  const reset = await mount('signin', 'fr', { hash: `action=reset_password&token=${token}` });
+  assert.equal(reset.dom.window.location.hash, '');
+  assert.ok(reset.$('#reset-form'));
+  assert.ok(!reset.calls.some(call => call.url.endsWith('/auth/reset-password')));
+  reset.input('#reset-password', 'replacement-password-123');
+  reset.input('#reset-confirm', 'replacement-password-123');
+  reset.submit('#reset-form');
+  await settle();
+  const resetCall = reset.calls.find(call => call.url.endsWith('/auth/reset-password'));
+  assert.equal(JSON.parse(resetCall.body).token, token);
+  assert.equal(reset.$('#recovery-status').textContent, dictionaries.fr.passwordUpdated);
+  assert.ok(!reset.dom.window.location.href.includes(token));
+  reset.dom.window.close();
+
+  const verify = await mount('signin', 'ja', { hash: `action=verify_email&token=${token}` });
+  assert.equal(verify.dom.window.location.hash, '');
+  assert.ok(verify.$('#verify-form'));
+  assert.ok(!verify.calls.some(call => call.url.endsWith('/auth/verify-email')));
+  verify.submit('#verify-form');
+  await settle();
+  assert.equal(JSON.parse(verify.calls.find(call => call.url.endsWith('/auth/verify-email')).body).token, token);
+  assert.equal(verify.$('#recovery-status').textContent, dictionaries.ja.emailVerified);
+  verify.dom.window.close();
+});
+
+test('forgot-password and authenticated verification requests use the API', async () => {
+  const forgot = await mount('signin', 'en');
+  forgot.input('#recovery-email', 'traveler@example.test');
+  forgot.submit('#forgot-form');
+  await settle();
+  const forgotCall = forgot.calls.find(call => call.url.endsWith('/auth/forgot-password'));
+  assert.equal(JSON.parse(forgotCall.body).email, 'traveler@example.test');
+  assert.equal(forgot.$('#recovery-status').textContent, dictionaries.en.recoverySent);
+  forgot.dom.window.close();
+
+  const account = await mount('account', 'fr', { user: {id:1,name:'Traveler',email:'traveler@example.test',verified_at:null} });
+  account.click('#verification-request');
+  await settle();
+  assert.ok(account.calls.some(call => call.url.endsWith('/auth/verification-request') && call.method === 'POST'));
+  assert.equal(account.$('#verification-status').textContent, dictionaries.fr.verificationRequested);
+  account.dom.window.close();
 });
 
 test('sample planner generates and translates inspiration without fake persistence', async () => {

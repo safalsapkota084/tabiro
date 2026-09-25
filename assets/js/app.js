@@ -1,15 +1,25 @@
-import { createApi } from './api.js?v=20260925.1';
-import { createItinerary } from './itinerary.js?v=20260925.1';
-import { translate, resolveLocale } from './i18n.js?v=20260914.2';
-import { routes, images, getRoute, createPlan, planDays } from './data.js?v=20260914.2';
-import { getStorage, readList, safeWrite } from './store.js?v=20260914.2';
+import { createApi } from './api.js?v=20260914.3';
+import { createItinerary } from './itinerary.js?v=20260914.3';
+import { translate, resolveLocale } from './i18n.js?v=20260914.3';
+import { routes, images, getRoute, createPlan, planDays } from './data.js?v=20260914.3';
+import { getStorage, readList, safeWrite } from './store.js?v=20260914.3';
 
 // Stamped by npm run version:assets; also busts cached HTML on navigation.
-const ASSET_VERSION = '20260914.2';
+const ASSET_VERSION = '20260914.3';
 const local = getStorage();
 const api = createApi();
 let sessionLoading = true, sessionError = '';
 const params = new URLSearchParams(location.search);
+let accountAction = '', accountToken = '';
+if (document.body.dataset.page === 'signin') {
+  const fragment = new URLSearchParams(location.hash.slice(1));
+  const action = fragment.get('action'), token = fragment.get('token');
+  if (location.hash) {
+    if (['reset_password', 'verify_email'].includes(action) && /^[a-f0-9]{64}$/.test(token || '')) { accountAction = action; accountToken = token; }
+    else accountAction = 'invalid';
+    history.replaceState(null, '', `${location.pathname}${location.search}`);
+  }
+}
 let storedLocale;
 try { storedLocale = local?.getItem('tabiro-language'); } catch {}
 let lang = resolveLocale(params.get('lang') || storedLocale || navigator.language);
@@ -55,10 +65,10 @@ const brandIcons = {
   culture: 'tabirocultureicon.png',
 };
 const icon = (name, extra = '') => brandIcons[name]
-  ? `<img class="icon brand-icon ${extra}" src="assets/images/${brandIcons[name]}?v=20260914.2" alt="" aria-hidden="true" width="24" height="24">`
+  ? `<img class="icon brand-icon ${extra}" src="assets/images/${brandIcons[name]}?v=20260914.3" alt="" aria-hidden="true" width="24" height="24">`
   : `<svg class="icon ${extra}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${symbolPaths[name] || symbolPaths.compass}</svg>`;
-const brand = '<img class="brand-lockup" src="assets/images/tabirologo%26typographyvertically.png?v=20260914.2" alt="Tabiro — Japan Discovery" width="296" height="96">';
-const wordmark = '<img class="brand-wordmark" src="assets/images/tabirotypography.png?v=20260914.2" alt="Tabiro — Japan Discovery" width="453" height="158">';
+const brand = '<img class="brand-lockup" src="assets/images/tabirologo%26typographyvertically.png?v=20260914.3" alt="Tabiro — Japan Discovery" width="296" height="96">';
+const wordmark = '<img class="brand-wordmark" src="assets/images/tabirotypography.png?v=20260914.3" alt="Tabiro — Japan Discovery" width="453" height="158">';
 const buttonLink = (label, file, options = {}, secondary = false) => `<a class="button ${secondary ? 'secondary' : ''}" href="${link(file, options)}">${esc(t(label))}${icon('arrow')}</a>`;
 function localeControl(id = 'language') {
   return `<label class="language-control" for="${id}">${icon('globe')}<span class="sr-only">${t('language')}</span><select id="${id}" data-language><option value="en" ${lang === 'en' ? 'selected' : ''}>English</option><option value="ja" ${lang === 'ja' ? 'selected' : ''}>日本語</option><option value="fr" ${lang === 'fr' ? 'selected' : ''}>Français</option></select></label>`;
@@ -76,7 +86,7 @@ function render() {
   if (sessionLoading || sessionError) {
     const status = document.createElement('p'); status.className = 'notice'; status.setAttribute('role',sessionError ? 'alert' : 'status'); status.textContent = t(sessionError || 'loading'); $('#main').prepend(status);
   }
-  if (isAuth) bindAuth();
+  if (isAuth) { bindAuth(); if (page === 'signin') bindRecovery(); }
   if (page === 'account') bindAccount();
 }
 function shell() {
@@ -90,7 +100,7 @@ function card(route) {
   return `<article class="route-card"><div class="card-cover image-${route.image}"><a href="${link('route', { id: route.id })}" aria-label="${esc(route.title[lang])}"><img src="${images[route.image]}" alt="" loading="lazy"></a><span class="category-badge">${icon(route.id === 'kyoto' ? 'culture' : route.category === 'coast' ? 'map' : 'leaf')}${t(route.category)}</span><button class="save-button ${isSaved ? 'is-saved' : ''}" data-save="${route.id}" aria-pressed="${isSaved}" aria-label="${t(isSaved ? 'saved' : 'save')}: ${esc(route.title[lang])}">${icon('heart')}</button></div><div class="card-content"><p class="location">${icon('pin')}${esc(route.region[lang])}</p><h3><a href="${link('route', { id: route.id })}">${esc(route.title[lang])}</a></h3><div class="card-bottom"><span>${icon('clock')}${t('days', { count: route.days })}</span><a href="${link('route', { id: route.id })}" aria-label="${t('viewRoute')}: ${esc(route.title[lang])}">${icon('up')}</a></div></div></article>`;
 }
 function homePage() {
-  return `${heading(profile ? t('greeting', { name: profile.name }) : t('hello'), t('dashboardIntro'))}<section class="dashboard-hero"><div class="hero-content"><p class="eyebrow"><span class="accent-dot"></span>${t('heroKicker')}</p><h2>${esc(t('heroTitle')).replace('\n', '<br>')}</h2><p>${t('heroText')}</p><div class="button-row">${buttonLink('planTrip', 'planner')}${buttonLink('findRoute', 'explore', {}, true)}</div></div><div class="hero-art"><img src="assets/images/journey.svg?v=20260914.2" alt=""><span class="art-caption">${t('littleFurther')}</span></div></section><div class="dashboard-stats"><a href="${link('trips')}"><span class="stat-icon">${icon('heart')}</span><div><strong>${t('savedCount', { count: saved.size })}</strong><span>${t('savedRoutes')}</span></div>${icon('arrow')}</a><a href="${link('trips')}"><span class="stat-icon peach">${icon('map')}</span><div><strong>${t('privateTrips')}</strong><span>${t('plannedTrips')}</span></div>${icon('arrow')}</a><a href="${link('planner')}" class="planner-shortcut">${icon('spark')}<div><strong>${t('planner')}</strong><span>${t('sidebarText')}</span></div>${icon('arrow')}</a></div><section><div class="section-heading"><div><h2>${t('madeForYou')}</h2><p>${t('handpicked')}</p></div><a class="text-link" href="${link('explore')}">${t('viewAll')}${icon('arrow')}</a></div><div class="card-grid home-cards">${routes.slice(0, 3).map(card).join('')}</div></section>`;
+  return `${heading(profile ? t('greeting', { name: profile.name }) : t('hello'), t('dashboardIntro'))}<section class="dashboard-hero"><div class="hero-content"><p class="eyebrow"><span class="accent-dot"></span>${t('heroKicker')}</p><h2>${esc(t('heroTitle')).replace('\n', '<br>')}</h2><p>${t('heroText')}</p><div class="button-row">${buttonLink('planTrip', 'planner')}${buttonLink('findRoute', 'explore', {}, true)}</div></div><div class="hero-art"><img src="assets/images/journey.svg?v=20260914.3" alt=""><span class="art-caption">${t('littleFurther')}</span></div></section><div class="dashboard-stats"><a href="${link('trips')}"><span class="stat-icon">${icon('heart')}</span><div><strong>${t('savedCount', { count: saved.size })}</strong><span>${t('savedRoutes')}</span></div>${icon('arrow')}</a><a href="${link('trips')}"><span class="stat-icon peach">${icon('map')}</span><div><strong>${t('privateTrips')}</strong><span>${t('plannedTrips')}</span></div>${icon('arrow')}</a><a href="${link('planner')}" class="planner-shortcut">${icon('spark')}<div><strong>${t('planner')}</strong><span>${t('sidebarText')}</span></div>${icon('arrow')}</a></div><section><div class="section-heading"><div><h2>${t('madeForYou')}</h2><p>${t('handpicked')}</p></div><a class="text-link" href="${link('explore')}">${t('viewAll')}${icon('arrow')}</a></div><div class="card-grid home-cards">${routes.slice(0, 3).map(card).join('')}</div></section>`;
 }
 function explorePage() {
   return `${heading(t('exploreTitle'), t('exploreIntro'))}<div class="explore-tools"><label class="search-field">${icon('search')}<span class="sr-only">${t('search')}</span><input id="route-search" type="search" value="${esc(query)}" placeholder="${t('searchPlaceholder')}" maxlength="100"></label><div class="filters" aria-label="${t('explore')}">${['all', 'coast', 'mountains', 'countryside'].map(type => `<button class="filter" data-filter="${type}" aria-pressed="${category === type}">${icon(type === 'all' ? 'compass' : type === 'coast' ? 'map' : 'leaf')}${t(type)}</button>`).join('')}</div></div><p class="result-count" id="result-count" role="status"></p><div class="card-grid explore-grid" id="route-results"></div>`;
@@ -167,10 +177,18 @@ function tripsPage() {
 }
 function authPage() {
   const signup = page === 'signup';
-  return `<div class="auth-layout"><aside class="auth-art"><a class="brand" href="${link('index')}">${brand}</a><div class="auth-story"><p class="eyebrow">${t('heroKicker')}</p><h1>${esc(t('authQuote')).replace('\n', '<br>')}</h1><p>${t('authSub')}</p><div class="auth-brand-art"><img src="assets/images/tabiromain.png?v=20260914.2" alt="Tabiro — Japan Discovery" width="530" height="402"></div></div><span class="auth-tagline">${t('littleFurther')}</span></aside><div class="auth-main"><header class="auth-top"><a class="auth-mobile-brand brand" href="${link('index')}">${wordmark}</a>${localeControl()}</header><main class="auth-form-wrap" id="main"><p class="eyebrow">${t(signup ? 'signUp' : 'signIn')}</p><h2>${t(signup ? 'signupTitle' : 'welcomeBack')}</h2><p class="page-intro">${t(signup ? 'signupIntro' : 'signInIntro')}</p><div class="demo-notice auth-demo">${icon('user')}<span>${t('authDemo')}</span></div><form id="auth-form" novalidate>${signup ? authField('name', 'text', 'name', 'namePlaceholder') : ''}${authField('email', 'email', 'email')}${authField('password', 'password', signup ? 'new-password' : 'current-password')}${signup ? authField('confirmPassword', 'password', 'new-password') : ''}<p class="password-hint">${t('passwordHint')}</p><p class="form-error" id="auth-error" role="alert"></p><button class="button full-width" type="submit">${t(signup ? 'signupSubmit' : 'signinSubmit')}${icon('arrow')}</button></form><p class="auth-switch">${t(signup ? 'hasAccount' : 'noAccount')} <a href="${link(signup ? 'signin' : 'signup')}">${t(signup ? 'signIn' : 'signUp')}</a></p><a class="guest-link" href="${link('index')}">${t('guest')}${icon('arrow')}</a></main><footer><span>© ${new Date().getFullYear()} Tabiro</span><span>${t('demo')}</span></footer></div></div><div class="toast" role="status" aria-live="polite"></div>`;
+  return `<div class="auth-layout"><aside class="auth-art"><a class="brand" href="${link('index')}">${brand}</a><div class="auth-story"><p class="eyebrow">${t('heroKicker')}</p><h1>${esc(t('authQuote')).replace('\n', '<br>')}</h1><p>${t('authSub')}</p><div class="auth-brand-art"><img src="assets/images/tabiromain.png?v=20260914.3" alt="Tabiro — Japan Discovery" width="530" height="402"></div></div><span class="auth-tagline">${t('littleFurther')}</span></aside><div class="auth-main"><header class="auth-top"><a class="auth-mobile-brand brand" href="${link('index')}">${wordmark}</a>${localeControl()}</header><main class="auth-form-wrap" id="main"><p class="eyebrow">${t(signup ? 'signUp' : 'signIn')}</p><h2>${t(signup ? 'signupTitle' : 'welcomeBack')}</h2><p class="page-intro">${t(signup ? 'signupIntro' : 'signInIntro')}</p><div class="demo-notice auth-demo">${icon('user')}<span>${t('authDemo')}</span></div><form id="auth-form" novalidate>${signup ? authField('name', 'text', 'name', 'namePlaceholder') : ''}${authField('email', 'email', 'email')}${authField('password', 'password', signup ? 'new-password' : 'current-password')}${signup ? authField('confirmPassword', 'password', 'new-password') : ''}<p class="password-hint">${t('passwordHint')}</p><p class="form-error" id="auth-error" role="alert"></p><button class="button full-width" type="submit">${t(signup ? 'signupSubmit' : 'signinSubmit')}${icon('arrow')}</button></form>${recoveryPanel()}<p class="auth-switch">${t(signup ? 'hasAccount' : 'noAccount')} <a href="${link(signup ? 'signin' : 'signup')}">${t(signup ? 'signIn' : 'signUp')}</a></p><a class="guest-link" href="${link('index')}">${t('guest')}${icon('arrow')}</a></main><footer><span>© ${new Date().getFullYear()} Tabiro</span><span>${t('demo')}</span></footer></div></div><div class="toast" role="status" aria-live="polite"></div>`;
 }
 function authField(name, type, autocomplete, placeholder) {
   return `<div class="field auth-field"><label for="${name}">${t(name)}</label><div class="input-wrap"><input id="${name}" name="${name}" type="${type}" autocomplete="${autocomplete}" required maxlength="${name === 'name' ? 60 : 254}" ${type === 'password' ? 'minlength="12"' : ''} ${placeholder ? `placeholder="${t(placeholder)}"` : ''} aria-describedby="${name}-error">${type === 'password' ? `<button type="button" class="password-toggle" data-password="${name}" aria-label="${t('showPassword')}" aria-pressed="false">${icon('compass')}</button>` : ''}</div><span class="field-error" id="${name}-error"></span></div>`;
+}
+function recoveryPanel() {
+  if (page !== 'signin') return '';
+  let action = '';
+  if (accountAction === 'reset_password') action = `<form id="reset-form"><h3>${t('resetPasswordTitle')}</h3><label class="field auth-field" for="reset-password">${t('password')}<input id="reset-password" name="password" type="password" autocomplete="new-password" minlength="12" maxlength="72" required></label><label class="field auth-field" for="reset-confirm">${t('confirmPassword')}<input id="reset-confirm" name="confirmation" type="password" autocomplete="new-password" minlength="12" maxlength="72" required></label><button class="button secondary full-width" type="submit">${t('resetPasswordSubmit')}</button></form>`;
+  else if (accountAction === 'verify_email') action = `<form id="verify-form"><h3>${t('verificationTitle')}</h3><p>${t('verificationText')}</p><button class="button secondary full-width" type="submit">${t('verifyEmailSubmit')}</button></form>`;
+  else if (accountAction === 'invalid') action = `<p class="form-error" role="alert">${t('invalidRecoveryLink')}</p>`;
+  return `<section class="auth-recovery" aria-labelledby="recovery-title"><h3 id="recovery-title">${t('accountSecurity')}</h3><form id="forgot-form"><label class="field auth-field" for="recovery-email">${t('email')}<input id="recovery-email" name="email" type="email" autocomplete="email" maxlength="254" required></label><button class="text-link" type="submit">${t('recoverySubmit')}</button></form>${action}<p id="recovery-error" class="form-error" role="alert"></p><p id="recovery-status" class="notice" role="status" aria-live="polite"></p></section>`;
 }
 function bindAuth() {
   const form = $('#auth-form');
@@ -203,8 +221,43 @@ function bindAuth() {
     finally { delete form.dataset.busy; submit.disabled = false; }
   });
 }
+function bindRecovery() {
+  $('#forgot-form')?.addEventListener('submit', async event => {
+    event.preventDefault();
+    const form = event.currentTarget, email = form.elements.email.value.trim();
+    $('#recovery-error').textContent = '';
+    if (!email || !form.elements.email.validity.valid) { $('#recovery-error').textContent = t('invalidEmail'); form.elements.email.focus(); return; }
+    const submit = form.querySelector('[type="submit"]'); submit.disabled = true;
+    try { await api.request('/auth/forgot-password', 'POST', {email}); $('#recovery-status').textContent = t('recoverySent'); form.reset(); }
+    catch (error) { $('#recovery-error').textContent = t(error.key || 'apiUnavailable'); }
+    finally { submit.disabled = false; }
+  });
+  $('#reset-form')?.addEventListener('submit', async event => {
+    event.preventDefault();
+    const form = event.currentTarget, password = form.elements.password.value, confirmation = form.elements.confirmation.value;
+    $('#recovery-error').textContent = '';
+    const bytes = new TextEncoder().encode(password).length;
+    if (bytes < 12 || bytes > 72 || password.includes('\0')) { $('#recovery-error').textContent = t('shortPassword'); form.elements.password.focus(); return; }
+    if (password !== confirmation) { $('#recovery-error').textContent = t('mismatch'); form.elements.confirmation.focus(); return; }
+    const submit = form.querySelector('[type="submit"]'); submit.disabled = true;
+    try { await api.request('/auth/reset-password', 'POST', {token:accountToken,password}); accountAction = ''; accountToken = ''; form.remove(); $('#recovery-status').textContent = t('passwordUpdated'); }
+    catch (error) { $('#recovery-error').textContent = t(error.key || 'apiUnavailable'); }
+    finally { if (submit.isConnected) submit.disabled = false; }
+  });
+  $('#verify-form')?.addEventListener('submit', async event => {
+    event.preventDefault();
+    const form = event.currentTarget, submit = form.querySelector('[type="submit"]'); submit.disabled = true;
+    $('#recovery-error').textContent = '';
+    try { await api.request('/auth/verify-email', 'POST', {token:accountToken}); accountAction = ''; accountToken = ''; form.remove(); $('#recovery-status').textContent = t('emailVerified'); }
+    catch (error) { $('#recovery-error').textContent = t(error.key || 'apiUnavailable'); }
+    finally { if (submit.isConnected) submit.disabled = false; }
+  });
+}
 function accountPage() {
-  return `${heading(t('accountTitle'), t('accountIntro'))}${profile ? `<div class="account-layout"><section class="panel"><div class="profile-heading"><span class="avatar large">${esc(profile.name.slice(0, 1).toUpperCase())}</span><div><h2>${esc(profile.name)}</h2><span class="demo-badge">${t('privateAccount')}</span></div></div><p class="notice">${esc(profile.email || '')}</p><form id="profile-form" novalidate><label class="field">${t('name')}<input name="name" value="${esc(profile.name)}" required maxlength="60" aria-describedby="profile-error"></label><p class="form-error" id="profile-error" role="alert"></p><button type="submit" class="button">${t('saveChanges')}${icon('check')}</button></form></section><section class="panel account-settings"><h2>${t('preferences')}</h2><p>${t('language')}</p>${localeControl('account-language')}<hr><p class="notice">${t('privateNotice')}</p><a class="text-link" href="${link('trips')}">${t('trips')}${icon('arrow')}</a><button class="button secondary full-width" id="signout">${icon('logout')}${t('signOut')}</button></section></div>` : `<div class="empty-state account-empty">${icon('user')}<h2>${t('guestTitle')}</h2><p>${t('guestText')}</p><div class="button-row">${buttonLink('signUp', 'signup')}${buttonLink('signIn', 'signin', {}, true)}</div><p class="notice">${t('privateNotice')}</p></div>`}`;
+  const verification = profile?.verified_at
+    ? `<p class="notice">${t('emailVerified')}</p>`
+    : `<p class="notice">${t('emailUnverified')}</p><button type="button" class="button secondary full-width" id="verification-request">${t('requestVerification')}</button><p id="verification-status" class="notice" role="status" aria-live="polite"></p>`;
+  return `${heading(t('accountTitle'), t('accountIntro'))}${profile ? `<div class="account-layout"><section class="panel"><div class="profile-heading"><span class="avatar large">${esc(profile.name.slice(0, 1).toUpperCase())}</span><div><h2>${esc(profile.name)}</h2><span class="demo-badge">${t('privateAccount')}</span></div></div><p class="notice">${esc(profile.email || '')}</p>${verification}<form id="profile-form" novalidate><label class="field">${t('name')}<input name="name" value="${esc(profile.name)}" required maxlength="60" aria-describedby="profile-error"></label><p class="form-error" id="profile-error" role="alert"></p><button type="submit" class="button">${t('saveChanges')}${icon('check')}</button></form></section><section class="panel account-settings"><h2>${t('preferences')}</h2><p>${t('language')}</p>${localeControl('account-language')}<hr><p class="notice">${t('privateNotice')}</p><a class="text-link" href="${link('trips')}">${t('trips')}${icon('arrow')}</a><button class="button secondary full-width" id="signout">${icon('logout')}${t('signOut')}</button></section></div>` : `<div class="empty-state account-empty">${icon('user')}<h2>${t('guestTitle')}</h2><p>${t('guestText')}</p><div class="button-row">${buttonLink('signUp', 'signup')}${buttonLink('signIn', 'signin', {}, true)}</div><p class="notice">${t('privateNotice')}</p></div>`}`;
 }
 function bindAccount() {
   $('#profile-form')?.addEventListener('submit', async event => {
@@ -213,6 +266,12 @@ function bindAccount() {
     const submit = event.target.querySelector('[type="submit"]'); submit.disabled = true;
     try { profile = await api.request('/me','PATCH',{name:input.value.trim(),locale:lang}); render(); notify(t('changesSaved')); }
     catch (error) { $('#profile-error').textContent = t(error.key || 'apiUnavailable'); submit.disabled = false; }
+  });
+  $('#verification-request')?.addEventListener('click', async event => {
+    const button = event.currentTarget; button.disabled = true;
+    try { await api.request('/auth/verification-request', 'POST'); $('#verification-status').textContent = t('verificationRequested'); }
+    catch (error) { $('#verification-status').textContent = t(error.key || 'apiUnavailable'); }
+    finally { button.disabled = false; }
   });
   $('#signout')?.addEventListener('click', async event => {
     event.currentTarget.disabled = true;

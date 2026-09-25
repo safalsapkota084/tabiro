@@ -78,18 +78,13 @@ The repository includes `phinx.production.php` for an explicitly approved migrat
 - `DB_NAME` exactly equal to `u844935905_tabiro`
 - CLI execution
 
-From the private Hostinger deployment directory, after confirming a restorable backup, an empty database, and a disposable MySQL 8 migration test, the command is:
+This configuration is not permission to run a production migration. Before any separately approved migration, an operator must take a read-only inventory of the existing tables and Phinx history, compare those schemas to the tracked foundation, verify a restorable backup, and rehearse the exact migration on a disposable copy of the existing database. **Do not assume the production database is empty.** The foundation migration creates new tables and is not an adoption or repair migration; if any Tabiro table exists without the complete matching foundation history, stop for a reviewed forward migration. Do not run Phinx directly against production until that review has established a safe path.
 
 ```sh
-TABIRO_ENV=production \
-TABIRO_CONFIG=/absolute/path/outside/public_html/database.php \
-vendor/bin/phinx migrate \
-  -c /absolute/path/to/phinx.production.php \
-  -e production \
-  --no-interaction
+No production migration command is provided here. The local migration wrapper deliberately rejects production. Any production migration requires a separate explicit approval, reviewed schema plan, private server-side config, verified backup, and disposable-copy rehearsal.
 ```
 
-This command has not been run. The local `scripts/migrate.php` wrapper remains development/test-only and still rejects production.
+The production database has not been inspected, connected to, migrated, or changed by this repository task. The local `scripts/migrate.php` wrapper remains development/test-only and rejects production.
 
 Official references:
 - [Hostinger SSH access](https://www.hostinger.com/support/1583245-how-to-connect-to-a-hosting-plan-via-ssh-in-hostinger/)

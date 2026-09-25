@@ -33,7 +33,7 @@ final class Auth {
  }
  public function required(): array {return $this->user()??throw new ApiError(401,'unauthenticated','Please sign in.');}
  public function view(): array {return ['user'=>$this->user(),'csrf_token'=>$this->session['csrf_token']];}
- private function throttle(string $email): void {
+ public function throttle(string $email): void {
   foreach(['ip:'.($_SERVER['REMOTE_ADDR']??''),'account:'.$email] as $bucket) {
    $key=hash('sha256',$bucket);$expiry=gmdate('Y-m-d H:i:s',time()+900);
    $q=$this->db->prepare('INSERT INTO auth_rate_limits(bucket,attempts,expires_at) VALUES(?,1,?) ON DUPLICATE KEY UPDATE attempts=IF(expires_at<=UTC_TIMESTAMP(),1,attempts+1), expires_at=IF(expires_at<=UTC_TIMESTAMP(),VALUES(expires_at),expires_at)');$q->execute([$key,$expiry]);
@@ -44,23 +44,27 @@ final class Auth {
  public function register(array $data): array {
   $email=strtolower(Http::text($data,'email',254,true));$this->throttle($email);
   if(!filter_var($email,FILTER_VALIDATE_EMAIL)) throw new ApiError(422,'validation','Enter a valid email address.',['email'=>'invalid']);
-  $name=Http::text($data,'name',100,true);$password=$data['password']??null;
-  if(!is_string($password)||strlen($password)<12||strlen($password)>72) throw new ApiError(422,'validation','Use a password between 12 and 72 bytes.',['password'=>'invalid']);
+  $name=Http::text($data,'name',100,true);$password=PasswordPolicy::validate($data['password']??null);
   $locale=$data['locale']??'en';if(!in_array($locale,['en','ja','fr'],true)) throw new ApiError(422,'validation','Invalid language.');
   $this->db->beginTransaction();
   try {
-   $q=$this->db->prepare('INSERT INTO users(email,password_hash,name,locale) VALUES(?,?,?,?)');$q->execute([$email,password_hash($password,PASSWORD_DEFAULT),$name,$locale]);$id=(int)$this->db->lastInsertId();
-   $q=$this->db->prepare("INSERT INTO user_roles(user_id,role_id) SELECT ?,id FROM roles WHERE name='user'");$q->execute([$id]);$this->db->commit();
-  }catch(\PDOException $e){$this->db->rollBack();if(($e->errorInfo[1]??null)===1062) throw new ApiError(409,'account_unavailable','Unable to register this account.');throw $e;}
+    $q=$this->db->prepare('INSERT INTO users(email,password_hash,name,locale) VALUES(?,?,?,?)');$q->execute([$email,password_hash($password,PASSWORD_DEFAULT),$name,$locale]);$id=(int)$this->db->lastInsertId();
+    $q=$this->db->prepare("INSERT INTO user_roles(user_id,role_id) SELECT ?,id FROM roles WHERE name='user'");$q->execute([$id]);
+    if($q->rowCount()!==1) throw new \RuntimeException('Default account role is unavailable.');
+    $this->db->commit();
+  }catch(\Throwable $e){if($this->db->inTransaction())$this->db->rollBack();if($e instanceof \PDOException&&($e->errorInfo[1]??null)===1062) throw new ApiError(409,'account_unavailable','Unable to register this account.');throw $e;}
   $this->rotate($id);return $this->view();
  }
  public function login(array $data): array {
   $email=strtolower(Http::text($data,'email',254,true));$this->throttle($email);
-  $password=$data['password']??'';if(!is_string($password)||strlen($password)>72) throw new ApiError(401,'invalid_credentials','Email or password is incorrect.');
+  $password=$data['password']??'';if(!is_string($password)||strlen($password)>72||str_contains($password,"\0")) throw new ApiError(401,'invalid_credentials','Email or password is incorrect.');
   $q=$this->db->prepare("SELECT id,password_hash FROM users WHERE email=? AND status='active'");$q->execute([$email]);$user=$q->fetch();
   // A fixed valid bcrypt hash keeps unknown-account verification on the same slow path.
   $hash=$user['password_hash']??'$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2uheWG/igi.';
   if(!password_verify($password,$hash)||!$user) throw new ApiError(401,'invalid_credentials','Email or password is incorrect.');
+  if(password_needs_rehash($hash,PASSWORD_DEFAULT)) {
+   $q=$this->db->prepare('UPDATE users SET password_hash=? WHERE id=? AND password_hash=?');$q->execute([password_hash($password,PASSWORD_DEFAULT),$user['id'],$hash]);
+  }
   $this->rotate((int)$user['id']);return $this->view();
  }
  public function logout(): array {$this->rotate(null);return $this->view();}

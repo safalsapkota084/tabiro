@@ -3,7 +3,7 @@ declare(strict_types=1);
 namespace Tabiro;
 final class Application {
  public static function run(array $config): never {
-  $db=Database::connect($config);$auth=new Auth($db,$config['environment']==='production');
+  $db=Database::connect($config);$auth=new Auth($db,$config['environment']==='production');$tokens=new AccountTokens($db,$auth,new Mailer($config));
   $method=$_SERVER['REQUEST_METHOD'];$path=parse_url($_SERVER['REQUEST_URI'],PHP_URL_PATH);
   if(!str_starts_with($path,'/api/v1/')) throw new ApiError(404,'not_found','Endpoint not found.');
   $path=substr($path,7);$data=[];
@@ -12,6 +12,10 @@ final class Application {
   if($path==='/auth/register'&&$method==='POST') Http::respond($auth->register($data),201);
   if($path==='/auth/login'&&$method==='POST') Http::respond($auth->login($data));
   if($path==='/auth/logout'&&$method==='POST') Http::respond($auth->logout());
+  if($path==='/auth/forgot-password'&&$method==='POST') Http::respond($tokens->forgot($data));
+  if($path==='/auth/reset-password'&&$method==='POST') Http::respond($tokens->consume($data,'reset_password'));
+  if($path==='/auth/verification-request'&&$method==='POST') Http::respond($tokens->requestVerification());
+  if($path==='/auth/verify-email'&&$method==='POST') Http::respond($tokens->consume($data,'verify_email'));
   $user=$auth->required();
   if($path==='/me'&&$method==='GET') Http::respond($user);
   if($path==='/me'&&$method==='PATCH') Http::respond($auth->update($data));

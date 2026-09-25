@@ -295,6 +295,12 @@ legend { font-size: 11px; font-weight: 600; margin-bottom: 11px; padding: 0; }
 .password-hint { color: var(--muted); font-size: 10px; margin: -4px 0 22px; }
 .auth-switch { font-size: 12px; color: var(--muted); text-align: center; margin: 22px 0; }
 .auth-switch a { color: var(--ink); font-weight: 600; text-decoration: underline; text-underline-offset: 3px; margin-left: 5px; }
+.auth-recovery { border-top: 1px solid var(--line); margin: 24px 0; padding-top: 18px; }
+.auth-recovery h3 { font-size: 15px; margin: 0 0 12px; }
+.auth-recovery p { font-size: 12px; color: var(--muted); }
+.auth-recovery form { margin: 12px 0; }
+.auth-recovery .text-link { color: var(--ink); font-size: 12px; text-decoration: underline; text-underline-offset: 3px; }
+.auth-recovery .notice:empty, .auth-recovery .form-error:empty { display: none; }
 .guest-link { display: flex; align-items: center; justify-content: center; gap: 8px; font-size: 11px; color: var(--muted); }
 .guest-link .icon { width: 14px; }
 .auth-mobile-brand { display: none; }

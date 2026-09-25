@@ -14,6 +14,14 @@ $config = require $path;
 foreach (['DB_HOST','DB_NAME','DB_USER','DB_PASSWORD','DB_PORT'] as $key) {
     if (!isset($config[$key]) || !is_scalar($config[$key])) throw new RuntimeException('Invalid private configuration.');
 }
+foreach (['MAIL_TRANSPORT', 'MAIL_FROM', 'APP_URL'] as $key) {
+    if (isset($config[$key]) && !is_string($config[$key])) throw new RuntimeException('Invalid private configuration.');
+}
+if (isset($config['MAIL_FROM']) && !filter_var($config['MAIL_FROM'], FILTER_VALIDATE_EMAIL)) throw new RuntimeException('Invalid private configuration.');
+if (isset($config['APP_URL'])) {
+    $url = parse_url($config['APP_URL']);
+    if (!is_array($url) || !isset($url['scheme'], $url['host']) || isset($url['user']) || isset($url['pass']) || isset($url['query']) || isset($url['fragment']) || (!empty($url['path']) && $url['path'] !== '/') || !in_array($url['scheme'], $environment === 'production' ? ['https'] : ['http', 'https'], true)) throw new RuntimeException('Invalid private configuration.');
+}
 if ($environment !== 'production') {
     if ($config['DB_HOST'] !== '127.0.0.1' || !in_array($config['DB_NAME'], ['tabiro_development','tabiro_test'], true)) throw new RuntimeException('Local database required.');
     if ($environment === 'test') $config['DB_NAME'] = 'tabiro_test';
