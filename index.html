@@ -1,17 +1,55 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta name="theme-color" content="#1F2F2A">
-  <meta name="description" content="Discover scenic journeys and plan your next adventure with Tabiro. Available in English, Japanese, and French.">
-  <title>Tabiro — Your next adventure</title>
-  <link rel="icon" href="assets/images/tabiroicon.png?v=20260914.3" type="image/png">
-  <link rel="stylesheet" href="assets/css/app.css?v=20260914.3">
-  <script type="module" src="assets/js/app.js?v=20260914.3"></script>
-</head>
-<body data-page="home">
-  <div id="app"></div>
-  <noscript><div style="max-width:600px;margin:10vh auto;padding:24px;font-family:sans-serif"><h1>Tabiro</h1><p>Please enable JavaScript to explore Tabiro.</p><p lang="ja">Tabiroをご利用いただくには、JavaScriptを有効にしてください。</p><p lang="fr">Veuillez activer JavaScript pour explorer Tabiro.</p></div></noscript>
-</body>
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="Tabiro — a little curiosity, a different road. Discover the quieter side of Japan.">
+    <meta name="theme-color" content="#1f2f2a">
+    <title>Tabiro — Japan, at your own pace</title>
+    <link rel="icon" href="assets/images/favicon.svg" type="image/svg+xml">
+    <link rel="stylesheet" href="style.css">
+  </head>
+  <body>
+    <header class="header">
+      <a class="brand" href="index.html" aria-label="Tabiro home">
+        <img src="assets/images/tabiroicon.png" alt="" width="44" height="44">
+        <span>TABIRO<small>JAPAN DISCOVERY</small></span>
+      </a>
+      <a class="nav-link" href="#our-story">The idea behind Tabiro <span aria-hidden="true">↗</span></a>
+    </header>
+
+    <main>
+      <section class="hero" aria-labelledby="welcome">
+        <div class="hero-copy">
+          <p class="eyebrow"><span></span> A LITTLE CURIOSITY. A DIFFERENT ROAD.</p>
+          <h1 id="welcome">Japan, at<br>your own <em>pace.</em></h1>
+          <p class="intro">Take the scenic road. Find a quiet corner. Stay a little longer. The best journeys leave room for discovery.</p>
+          <a class="button" href="#our-story">Meet Tabiro <span aria-hidden="true">↘</span></a>
+          <p class="small-note">For the places in between.</p>
+        </div>
+        <figure class="hero-art">
+          <div class="art-label"><span aria-hidden="true">✳</span> LESS RUSH. MORE WONDER.</div>
+          <img src="assets/images/journey.svg" alt="An illustrated winding road through Japanese mountains, forests, and a turquoise river" width="540" height="500">
+          <figcaption>A new perspective, just around the bend.</figcaption>
+        </figure>
+      </section>
+
+      <section class="story" id="our-story" aria-labelledby="story-title">
+        <div>
+          <p class="eyebrow">THE SPIRIT OF TABIRO</p>
+          <h2 id="story-title">A journey is more<br>than a destination.</h2>
+        </div>
+        <div class="story-copy">
+          <p>Tabiro is an invitation to explore Japan with curiosity. From forest paths to small-town streets, we believe the moments along the way are what make a trip yours.</p>
+          <div class="interests" aria-label="Nature, culture, and scenic roads">
+            <span><img src="assets/images/tabironatureicon.png" alt="" width="25" height="25">Nature</span>
+            <span><img src="assets/images/tabirocultureicon.png" alt="" width="25" height="25">Culture</span>
+            <span><img src="assets/images/tabirosenicroadicon.png" alt="" width="25" height="25">Scenic roads</span>
+          </div>
+        </div>
+      </section>
+    </main>
+
+    <footer><span>© 2026 Tabiro</span><span>Made for the joy of the journey.</span><a href="#welcome">Back to top ↑</a></footer>
+  </body>
 </html>

@@ -1,0 +1,56 @@
+/* Shared colors and page layout */
+:root { color-scheme: light; --forest: #1f2f2a; --clay: #a9574b; --paper: #f7f5ef; --muted: #626d65; }
+* { box-sizing: border-box; }
+html { scroll-behavior: smooth; }
+body { margin: 0; background: var(--paper); color: var(--forest); font-family: Arial, Helvetica, sans-serif; -webkit-font-smoothing: antialiased; }
+a { color: inherit; text-decoration: none; }
+a:focus-visible { outline: 3px solid var(--clay); outline-offset: 6px; }
+img { display: block; max-width: 100%; object-fit: contain; }
+.header, main, footer { width: min(1200px, calc(100% - 96px)); margin-inline: auto; }
+.header { min-height: 116px; display: flex; align-items: center; justify-content: space-between; border-bottom: 1px solid #1f2f2a22; gap: 24px; }
+.brand { display: inline-flex; align-items: center; gap: 11px; }
+.brand > span { font-size: 23px; letter-spacing: 4px; font-weight: 700; }
+.brand small { display: block; margin-top: 5px; font-size: 8px; letter-spacing: 2px; }
+.nav-link { font-size: 13px; }
+.nav-link span { margin-left: 20px; font-size: 20px; }
+.nav-link:hover, footer a:hover { color: var(--clay); }
+
+/* Welcome section */
+.hero { display: grid; grid-template-columns: 1.05fr 1fr; gap: 30px; align-items: center; padding: 86px 0 82px; }
+.eyebrow { font-size: 10px; font-weight: 700; letter-spacing: 2px; line-height: 1.8; }
+.eyebrow > span { display: inline-block; width: 7px; height: 7px; border-radius: 50%; background: var(--clay); margin-right: 9px; }
+h1, h2 { font-family: Georgia, 'Times New Roman', serif; font-weight: 400; }
+h1 { font-size: clamp(56px, 6.5vw, 88px); line-height: 1.04; letter-spacing: -4px; margin: 25px 0; }
+h1 em { color: var(--clay); font-weight: 400; }
+.intro { color: var(--muted); font-size: 16px; line-height: 1.85; max-width: 370px; margin-bottom: 31px; }
+.button { display: inline-flex; gap: 42px; align-items: center; border-radius: 4px; padding: 17px 23px; background: var(--forest); color: var(--paper); font-size: 13px; transition: background .2s; }
+.button:hover { background: #365247; }
+.button span { font-size: 20px; }
+.small-note { color: var(--muted); font-size: 11px; margin-top: 17px; }
+.hero-art { position: relative; margin: 0; }
+.hero-art > img { width: 100%; height: auto; }
+.art-label { font-size: 9px; letter-spacing: 2px; display: flex; align-items: center; gap: 10px; justify-content: center; }
+.art-label span { color: var(--clay); font-size: 27px; }
+figcaption { font-family: Georgia, serif; font-style: italic; text-align: center; color: var(--muted); font-size: 14px; margin-top: 8px; }
+
+/* A short introduction and footer */
+.story { border-top: 1px solid #1f2f2a22; padding: 49px 0 58px; display: grid; grid-template-columns: 1fr 1fr; gap: 50px; scroll-margin-top: 30px; }
+.story .eyebrow { color: var(--clay); margin-top: 0; }
+h2 { font-size: 35px; line-height: 1.2; letter-spacing: -.8px; margin: 16px 0 0; }
+.story-copy > p { color: var(--muted); font-size: 14px; line-height: 1.9; margin: 0; max-width: 465px; }
+.interests { display: flex; flex-wrap: wrap; gap: 25px; margin-top: 24px; }
+.interests span { display: flex; align-items: center; gap: 8px; font-size: 11px; }
+footer { border-top: 1px solid #1f2f2a22; padding-block: 25px; display: flex; justify-content: space-between; gap: 18px; color: var(--muted); font-size: 10px; }
+@media (min-width: 1500px) { .hero { padding-block: 110px; } }
+@media (max-width: 760px) {
+  .header, main, footer { width: calc(100% - 40px); }
+  .header { min-height: 90px; }
+  .nav-link { max-width: 110px; font-size: 11px; line-height: 1.6; text-align: right; }
+  .nav-link span { margin-left: 4px; }
+  .hero { grid-template-columns: 1fr; gap: 35px; padding: 48px 0; }
+  h1 { font-size: clamp(54px, 12vw, 80px); letter-spacing: -2.5px; }
+  .hero-art { width: min(100%, 470px); justify-self: center; }
+  .story { grid-template-columns: 1fr; gap: 25px; padding-block: 35px; }
+  footer { flex-wrap: wrap; line-height: 1.6; }
+}
+@media (prefers-reduced-motion: reduce) { html { scroll-behavior: auto; } .button { transition: none; } }
